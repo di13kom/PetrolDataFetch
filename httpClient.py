@@ -12,6 +12,7 @@ from SqlAdapter import SqlAdapter
 from SqlDeclarative import Petrol_Transactions
 from datetime import datetime
 from CookieManager import CookieManager
+from DateExtractor import DateExtractor
 
 
 class DataFetcher(object):
@@ -21,12 +22,19 @@ class DataFetcher(object):
             self.Site = obj['SiteUrl']
             self.UserName = obj['UserName']
             self.UserPassword = obj['Password']
-        self.CookieManager = CookieManager()
+            self.LoginUri = obj['LoginUri']
+            self.TransactionUri = obj['TransactionUri']
+            self.RootUri = obj['RootUri']
+            self.CookieManager = CookieManager()
         self.SqlAdapter = SqlAdapter()
         self.MainConnection = client.HTTPSConnection(self.Site)
+        self.DtExtractor = DateExtractor()
 
-    def GetUrl(self, url):
-        self.MainConnection.request("GET", url)
+        self.TransactionUri = self.TransactionUri.replace('<StartDtPattern>',self.DtExtractor.GetStartDtFormat())
+        self.TransactionUri = self.TransactionUri.replace('<EndDtPattern>',self.DtExtractor.GetEndDtFormat())
+
+    def GetUrl(self):
+        self.MainConnection.request("GET", self.RootUri)
         response = self.MainConnection.getresponse()
         print('GetUrl status:', response.status, response.reason)
         self.CookieManager.LoadFromString(response.getheader('Set-Cookie'))
@@ -34,7 +42,7 @@ class DataFetcher(object):
         response.read()
         #print(response.getheaders())
 
-    def GetUrlJson(self, url):
+    def GetUrlJson(self):
         headers =   {
                         "Accept": "application/json, text/plain, */*",
                         "Accept-Encoding": "gzip, deflate, br",
@@ -47,7 +55,7 @@ class DataFetcher(object):
                         "DNT":"1",
                     }
 
-        self.MainConnection.request("GET", url, headers=headers)
+        self.MainConnection.request("GET", self.TransactionUri, headers=headers)
         response = self.MainConnection.getresponse()
         print('---GetUrlJson status: %s, reason: %s, prtotcol version: %s---'%( response.status, response.reason, response.version))
 
@@ -83,10 +91,10 @@ class DataFetcher(object):
                 )
             )
 
-        self.SqlAdapter.Append(transactions)
+        self.SqlAdapter.Append(transactions, self.DtExtractor)
             
 
-    def TryLogin(self, url):
+    def TryLogin(self):
         
         params = urllib.parse.urlencode({'username':self.UserName, 'password':self.UserPassword})
         headers =   {
@@ -103,7 +111,7 @@ class DataFetcher(object):
                         "X-Compress": "null"
                     }
 
-        self.MainConnection.request("POST", url, params, headers)
+        self.MainConnection.request("POST", self.LoginUri, params, headers)
         response = self.MainConnection.getresponse()
         print('TryLogin status: %s, reason: %s, prtotcol version: %s'%( response.status, response.reason, response.version))
         #if(response.status == HTTPStatus.OK):
@@ -132,10 +140,10 @@ class DataFetcher(object):
 
 def main():
     obj = DataFetcher('settings.json')
-    obj.GetUrl('/')
+    obj.GetUrl()
     #time.sleep(1)
-    obj.TryLogin('/api/v1/login')
-    obj.GetUrlJson('/api/v1/transactions/main/dateFrom/04.08.2018/dateTo/31.08.2018/?isOnlySusp=false&format=JSON&limit=1000&offset=0&refresh=0&sortBy=DATE&sortOrder=DESC')
+    obj.TryLogin()
+    obj.GetUrlJson()
     obj.Close()
 
 
