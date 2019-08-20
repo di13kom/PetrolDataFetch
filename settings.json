@@ -1,7 +1,7 @@
 {
 	"UserName":"UserName",
 	"Password":"Password",
-	"SiteUrl":"SiteUrl"
+	"SiteUrl":"SiteUrl",
 	"RootUri":"/",
 	"LoginUri":"/api/v1/login",
 	"TransactionUri":"/api/v1/transactions/main/dateFrom/<StartDtPattern>/dateTo/<EndDtPattern>/?isOnlySusp=false&format=JSON&limit=1000&offset=0&refresh=0&sortBy=DATE&sortOrder=DESC"
