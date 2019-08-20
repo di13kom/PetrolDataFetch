@@ -135,7 +135,7 @@ def main():
     obj.GetUrl('/')
     #time.sleep(1)
     obj.TryLogin('/api/v1/login')
-    obj.GetUrlJson('/api/v1/transactions/main/dateFrom/01.05.2018/dateTo/31.08.2018/?isOnlySusp=false&format=JSON&limit=1000&offset=0&refresh=0&sortBy=DATE&sortOrder=DESC')
+    obj.GetUrlJson('/api/v1/transactions/main/dateFrom/04.08.2018/dateTo/31.08.2018/?isOnlySusp=false&format=JSON&limit=1000&offset=0&refresh=0&sortBy=DATE&sortOrder=DESC')
     obj.Close()
 
 
