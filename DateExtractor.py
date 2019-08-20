@@ -13,6 +13,6 @@ class DateExtractor(object):
     def GetEndDtFormat(self):
         return self.EndDt.strftime('%d.%m.%Y')
     def GetEndDtSqlFormat(self):
-        return self.EndDt.strftime('%Y-%m-%d')
+        return (self.EndDt + timedelta(days=1)).strftime('%Y-%m-%d')
     def GetStartSqlFormat(self):
         return self.StartDt.strftime('%Y-%m-%d')
